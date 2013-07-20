@@ -76,7 +76,7 @@ class Tetris
     exit(0) if key_pressed?(Key::ESCAPE)
   end
 
-  # キー入力後、移動可能か判定
+  # 現在の位置ではなく、移動後の座標で当たり判定
   def move?(direction)
     case direction
     when :left then @current.map {|sq| sq.x}.min > 0 and not hit(direction)
