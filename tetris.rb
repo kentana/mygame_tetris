@@ -46,7 +46,7 @@ class Tetris
 
   def initialize
     @time_counter = 0
-    @field = [] # 落ちた後のブロック
+    @field = []
     make_block
   end
 
@@ -79,9 +79,9 @@ class Tetris
   # キー入力後、移動可能か判定
   def move?(direction)
     case direction
-    when :left then @current.map {|sq| sq.x}.min > 0 and !hit(:left)
-    when :right then @current.map {|sq| sq.x}.max + BLOCK_SIDE < 300 and !hit(:right)
-    when :down then @current.map {|sq| sq.y}.max + BLOCK_SIDE < 600 and !hit(:down)
+    when :left then @current.map {|sq| sq.x}.min > 0 and not hit(direction)
+    when :right then @current.map {|sq| sq.x}.max + BLOCK_SIDE < 300 and not hit(direction)
+    when :down then @current.map {|sq| sq.y}.max + BLOCK_SIDE < 600 and not hit(direction)
     end
   end
 
@@ -90,7 +90,7 @@ class Tetris
   # 引数なしで呼び出した場合、新しいブロックを作成
   # 引数有りで呼び出した場合、回転後のブロックを作成
   def make_block(x=BLOCK_SIDE*3, y=0, shape=nil)
-    id = rand(7)
+    id = rand(Block_info.shapes.size)
     @current_color = Block_info.colors[id] unless shape
     @current = []
     @current_shape = shape ? shape : Block_info.shapes[id]
@@ -116,14 +116,14 @@ class Tetris
       end
       return true if @field.map {|square| {x:square.x, y:square.y}}.include?(termination)
     end
-    false
+    return false
   end
 
   # 座標が半端な値のとき、整形
   def position(sq)
     col = sq.x / BLOCK_SIDE
     row = sq.y / BLOCK_SIDE
-    { x: col * BLOCK_SIDE, y: row * BLOCK_SIDE}
+    return { x: col * BLOCK_SIDE, y: row * BLOCK_SIDE}
   end
 
   def reach_bottom
@@ -136,6 +136,7 @@ class Tetris
     @current = []
   end
 
+  # きれいに回らない
   def rotate
     @rotated = Hash.new {|k, v| k[v] = {}}
 
@@ -149,7 +150,7 @@ class Tetris
   def clear_line
     rows = @field.map {|sq| sq.y}
     delete_lines = []
-    rows.each {|i| delete_lines << i if rows.count(i) >= 20 and !delete_lines.include?(i)}
+    rows.each {|i| delete_lines << i if rows.count(i) >= COLS*2 and !delete_lines.include?(i)}
     @field.delete_if {|sq| delete_lines.include?(sq.y)}
 
     if delete_lines.size > 0
@@ -162,7 +163,7 @@ class Tetris
 
   def gameover?
     @field.each {|sq| return true if [sq.x, sq.y] == [BLOCK_SIDE*3, 0]}
-    false
+    return false
   end
 end
 
