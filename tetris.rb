@@ -46,6 +46,7 @@ class Tetris
 
   def initialize
     @time_counter = 0
+    @reach_time = 0
     @field = []
     make_block
   end
@@ -61,7 +62,8 @@ class Tetris
     @time_counter += 1
     if move?(:down)
       @current.each {|sq| sq.y += 1}
-    else
+      @reach_time = @time_counter
+    elsif @reach_time <= @time_counter - 20
       reach_bottom
       clear_line
       make_block
